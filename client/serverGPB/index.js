@@ -258,17 +258,17 @@ export default function ({url,
             if (res.error) error_handler({error: res.error})
             
             else data = res.result
-                
+             
             for_send.forEach(item => {
 
-                let objs = data_cache.ref_key[item.ref][item.key]
-                
-                let defs = Object.keys(objs)
-                defs.forEach(def_key => {
+                let line = data.find(l => l.ref == item.ref && l.key == item.key)
 
-                    let obj = objs[def_key]
-                    obj.set_data( data[item.ref] ? data[item.ref][item.key] : undefined )
-                })
+                let value = line ? line.value : undefined
+
+                let objs = data_cache.ref_key[item.ref][item.key]
+               
+                let defs = Object.keys(objs)
+                defs.forEach(def_key => objs[def_key].set_data(value))
             })
         }
     }

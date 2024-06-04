@@ -15,7 +15,7 @@ const srv = serverGPB({
 let obj = srv.view('пока нет ответа :(').ping()
 
 let list_obj = srv.view([]).get_list()
-console.log({list_obj})
+
 
 const App = observer(() => {
 
@@ -39,7 +39,7 @@ const App = observer(() => {
       <br></br>{srv.view([]).get_list().loading ? 'сейчас подгрузится список' : undefined}
       <ul>{
         srv.view([]).get_list().data.map((ref) => (
-          <li>{ref}</li>  
+          <li>ссылка: {ref} наименование: {srv.ref(ref).name('здесь будет наименование').data}</li>  
         ))
       }</ul>
       <button onClick={() => list_obj.reset()}>reset список</button>
