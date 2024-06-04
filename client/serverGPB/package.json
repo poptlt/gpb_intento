@@ -1,0 +1,13 @@
+{
+  "name": "server_gpb",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "mobx": "^6.12.3"
+  },
+  "scripts": {
+
+  }
+
+
+}

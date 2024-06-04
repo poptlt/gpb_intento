@@ -1,9 +1,10 @@
-const { default: Axios } = require('axios')
+import axios from 'axios'
 
 export default function ({
     url, 
     timeout = 10000, 
     delay = 50,
+    test_delay = 0,
     error_handler
 }) {
 
@@ -37,7 +38,7 @@ export default function ({
         
             try {
 
-                const res = await Axios({
+                const res = await axios({
                     method: 'post',
                     url,
                     timeout,
@@ -45,6 +46,8 @@ export default function ({
                     headers: {'Content-Type': 'application/json'},
                 })
 
+                if (test_delay) await new Promise(resolve => setTimeout(() => resolve(), test_delay))
+                
                 if (Array.isArray(res.data)) {
 
                     res.data.forEach(receive => {

@@ -17,6 +17,10 @@ $app->add_sub('test2', sub{
     return $ctx;
 });
 
+my @list = qw{ ref1 ref2 ref3 };
+
+$app->add_sub('get_list', sub {\@list});
+
 $app->add_folder('math', './math.pl');
 
 return $app
