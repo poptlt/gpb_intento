@@ -5,7 +5,7 @@ import serverGPB from './serverGPB'
 
 const srv = serverGPB({
   url: 'http://localhost/cgi-bin/test.cgi',
-  test_delay: 1000,
+  test_delay: 3000,
   error_handler({error, retry, reset}) { 
     console.log('вызван error_handler:')
     console.log(error) 
@@ -15,6 +15,7 @@ const srv = serverGPB({
 let obj = srv.view('пока нет ответа :(').ping()
 
 let list_obj = srv.view([]).get_list()
+
 
 
 const App = observer(() => {
@@ -39,7 +40,12 @@ const App = observer(() => {
       <br></br>{srv.view([]).get_list().loading ? 'сейчас подгрузится список' : undefined}
       <ul>{
         srv.view([]).get_list().data.map((ref) => (
-          <li>ссылка: {ref} наименование: {srv.ref(ref).name('здесь будет наименование').data}</li>  
+          <li key={ref}>
+            ссылка: {ref} 
+            ссылка ссылки: {srv.ref(ref).name().data}
+            ключ от ссылки ссылки: {srv.ref(srv.ref(ref).name()).name('default').data}
+            "{srv.ref(srv.ref(ref).name()).name('default').loading ? 'еще загружается' : ''}"
+          </li>  
         ))
       }</ul>
       <button onClick={() => list_obj.reset()}>reset список</button>

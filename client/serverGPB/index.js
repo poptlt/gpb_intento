@@ -1,5 +1,5 @@
 import request from './request'
-import { makeObservable, observable, action } from 'mobx'
+import { makeObservable, observable, computed, action } from 'mobx'
 
 const stringify = JSON.stringify
 // JSON.stringify в принципе не гарантирует идентичность строки, полученной из одного и того же объекта
@@ -17,6 +17,7 @@ export default function ({url,
     
         view: {},
         ref_key: {},
+        ref_key_proxy: new Map()
     }
 
     const empty_ref = {
@@ -275,6 +276,41 @@ export default function ({url,
 
     setInterval(get_ref_key, 50)
 
+    class ref_key_proxy {
+
+        constructor({ref, key, def}) {
+
+            this.ref = ref
+            this.key = key
+            this.def = def
+
+            makeObservable(this, {
+                data: computed,
+                loading: computed,
+            })            
+        }
+
+        get data() {
+
+            if (this.ref.data) {
+
+                const obj = ref_key({ref: this.ref.data, key: this.key, def: this.def})
+                return obj.data
+            }
+            else return this.def
+        } 
+
+        get loading() {
+
+            if (this.ref.data) {
+
+                const obj = ref_key({ref: this.ref.data, key: this.key, def: this.def})
+                return obj.loading
+            }
+            else return true
+        } 
+    }
+
     class ref_key_result {
 
         constructor({ref, key, def}) {
@@ -320,21 +356,42 @@ export default function ({url,
 
     function ref_key({ref, key, def}) {
 
-        if (!data_cache.ref_key[ref]) data_cache.ref_key[ref] = {}
+        if (ref instanceof ref_key_result) {
 
-        if (!data_cache.ref_key[ref][key]) data_cache.ref_key[ref][key] = {}
-        
-        if (data_cache.ref_key[ref][key][stringify(def)]) 
-            return data_cache.ref_key[ref][key][stringify(def)]
+            if (!data_cache.ref_key_proxy.has(ref)) data_cache.ref_key_proxy.set(ref, {})
+            
+            let keys = data_cache.ref_key_proxy.get(ref)
+            
+            if (!keys[key]) keys[key] = {}
+
+            if (keys[key][stringify(def)]) return keys[key][stringify(def)]
+            
+            else {
+
+                let obj = new ref_key_proxy({ref, key, def})
+                keys[key][stringify(def)] = obj
+                return obj
+            }
+        }
+
+        else {
+
+            if (!data_cache.ref_key[ref]) data_cache.ref_key[ref] = {}
+
+            if (!data_cache.ref_key[ref][key]) data_cache.ref_key[ref][key] = {}
+            
+            if (data_cache.ref_key[ref][key][stringify(def)]) 
+                return data_cache.ref_key[ref][key][stringify(def)]
 
 
-        const obj = new ref_key_result({ref, key, def})
-        
-        data_cache.ref_key[ref][key][stringify(def)] = obj
+            const obj = new ref_key_result({ref, key, def})
+            
+            data_cache.ref_key[ref][key][stringify(def)] = obj
 
-        keys_queue.push(obj)
+            keys_queue.push(obj)
 
-        return obj
+            return obj
+        }
     }
 
 
