@@ -314,51 +314,40 @@ export default function ({url,
 
 
 
-    class ref_key_result {
+    class ref_key_proxy {
 
         constructor({ref, key, def}) {
 
             this.ref = ref
             this.key = key
             this.def = def
-            this.data = def
 
             makeObservable(this, {
-                data: observable,
-                loading: observable,
-                set_data: action,
-                reset: action,
-                reload: action,
-            }) 
-        }   
-
-        ref = undefined
-        key = undefined
-        def = undefined
-        _resolve = undefined
-        promise = new Promise(resolve => _resolve = resolve)
-
-        data = undefined
-        loading = true
-
-        set_data(data) {
-            this.data = data
-            this._resolve(data)
-            this.loading = false
+                data: computed,
+                loading: computed,
+            })            
         }
 
-        reset() {
+        get data() {
 
-            this.data = this.def
-            this.loading = true
-            keys_queue.push(this)
-        }
-        
-        reload() {
-            keys_queue.push(this)
-        }
-    }    
+            if (this.ref.data) {
 
+                const obj = ref_key({ref: this.ref.data, key: this.key, def: this.def})
+                return obj.data
+            }
+            else return this.def
+        } 
+
+        get loading() {
+
+            if (this.ref.data) {
+
+                const obj = ref_key({ref: this.ref.data, key: this.key, def: this.def})
+                return obj.loading
+            }
+            else return true
+        } 
+    }
 
 
 
