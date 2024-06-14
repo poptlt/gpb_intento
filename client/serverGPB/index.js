@@ -276,6 +276,44 @@ export default function ({url,
 
     setInterval(get_ref_key, 50)
 
+    // class ref_key_proxy {
+
+    //     constructor({ref, key, def}) {
+
+    //         this.ref = ref
+    //         this.key = key
+    //         this.def = def
+
+    //         makeObservable(this, {
+    //             data: computed,
+    //             loading: computed,
+    //         })            
+    //     }
+
+    //     get data() {
+
+    //         if (this.ref.data) {
+
+    //             const obj = ref_key({ref: this.ref.data, key: this.key, def: this.def})
+    //             return obj.data
+    //         }
+    //         else return this.def
+    //     } 
+
+    //     get loading() {
+
+    //         if (this.ref.data) {
+
+    //             const obj = ref_key({ref: this.ref.data, key: this.key, def: this.def})
+    //             return obj.loading
+    //         }
+    //         else return true
+    //     } 
+    // }
+
+
+
+
     class ref_key_proxy {
 
         constructor({ref, key, def}) {
@@ -312,41 +350,43 @@ export default function ({url,
     }
 
 
-
-
-    class ref_key_proxy {
+    class ref_key_result {
 
         constructor({ref, key, def}) {
 
             this.ref = ref
             this.key = key
             this.def = def
+            this.data = def
+            this.loading = true
+            this._resolve = undefined
+            promise = new Promise(resolve => this._resolve = resolve)
 
             makeObservable(this, {
-                data: computed,
-                loading: computed,
-            })            
+                data: observable,
+                loading: observable,
+                set_data: action,
+                reset: action,
+                reload: action,
+            }) 
+        }   
+
+        set_data(data) {
+            this.data = data
+            this._resolve(data)
+            this.loading = false
         }
 
-        get data() {
+        reset() {
 
-            if (this.ref.data) {
-
-                const obj = ref_key({ref: this.ref.data, key: this.key, def: this.def})
-                return obj.data
-            }
-            else return this.def
-        } 
-
-        get loading() {
-
-            if (this.ref.data) {
-
-                const obj = ref_key({ref: this.ref.data, key: this.key, def: this.def})
-                return obj.loading
-            }
-            else return true
-        } 
+            this.data = this.def
+            this.loading = true
+            keys_queue.push(this)
+        }
+        
+        reload() {
+            keys_queue.push(this)
+        }
     }
 
 
