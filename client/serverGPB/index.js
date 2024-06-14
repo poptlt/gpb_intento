@@ -311,6 +311,9 @@ export default function ({url,
         } 
     }
 
+
+
+
     class ref_key_result {
 
         constructor({ref, key, def}) {
@@ -332,12 +335,15 @@ export default function ({url,
         ref = undefined
         key = undefined
         def = undefined
+        _resolve = undefined
+        promise = new Promise(resolve => _resolve = resolve)
 
         data = undefined
         loading = true
 
         set_data(data) {
             this.data = data
+            this._resolve(data)
             this.loading = false
         }
 
@@ -351,7 +357,52 @@ export default function ({url,
         reload() {
             keys_queue.push(this)
         }
-    }
+    }    
+
+
+
+
+    // class ref_key_result {
+
+    //     constructor({ref, key, def}) {
+
+    //         this.ref = ref
+    //         this.key = key
+    //         this.def = def
+    //         this.data = def
+
+    //         makeObservable(this, {
+    //             data: observable,
+    //             loading: observable,
+    //             set_data: action,
+    //             reset: action,
+    //             reload: action,
+    //         }) 
+    //     }   
+
+    //     ref = undefined
+    //     key = undefined
+    //     def = undefined
+
+    //     data = undefined
+    //     loading = true
+
+    //     set_data(data) {
+    //         this.data = data
+    //         this.loading = false
+    //     }
+
+    //     reset() {
+
+    //         this.data = this.def
+    //         this.loading = true
+    //         keys_queue.push(this)
+    //     }
+        
+    //     reload() {
+    //         keys_queue.push(this)
+    //     }
+    // }
 
 
     function ref_key({ref, key, def}) {
